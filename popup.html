@@ -5,17 +5,16 @@ body {
 }
 
 #container {
-/*	margin-top: 40px;*/
+	margin-top: 40px;
 }
 
 a.question_text {
 	width: 450px;
-	margin-right: 10px;
+	margin-left: 10px;
 	float: left;
 }
 
 button.hideButton {
-	margin-right: 10px;
 	width: 45px;
 	float: left;
 	text-align: center;
@@ -23,8 +22,12 @@ button.hideButton {
 
 button.bookButton {
 	float: left;
-	width: 80px;
+	width: 99px;
 	text-align: center;
+}
+
+button.buttons {
+	display:block;
 }
 
 img {
@@ -134,9 +137,9 @@ img {
 			var hideButton = makeHideButton(href, rout, text, tabId);
 			var bookButton = makeBookButton(href, rout, text, tabId);				
 			var storedValues = getValue(rout)
+			div.appendChild(bookButton);
 			div.appendChild(anchor);
 			div.appendChild(hideButton);
-			div.appendChild(bookButton);
 			container.appendChild(div)
 		}
 		else {
@@ -184,10 +187,10 @@ img {
 		if(buttonElem) {
 			var childElems = buttonElem.childNodes;
 			if(hidebook == "hide") {
-				childElems[1].innerHTML = text
+				childElems[2].innerHTML = text
 			}
 			else if(hidebook == "book") {
-				childElems[2].innerHTML = text
+				childElems[0].innerHTML = text
 			}	
 		}
 	}
@@ -363,18 +366,19 @@ img {
 
 </head>
 <body>
-	<div id="buttons">
-	  <button id="clearButton" style="float:right">Clear Storage</button>
-	  <button id="closeButton" style="float:right">Close</button>
-	  <button id="getquestions" style="float:left">Current Quoras</button>
-	  <button id="getbookmarks" style="float:left">BookMarked Quoras</button>
-	  <button id="gethiddens" style="float:left">Hidden Quoras</button> 
-	  <div id="title" style="float:left; margin-top:2px; padding-left:5px;">Message Here</div>
+	<div id="buttons" style="display:block">
+	  <button id="clearButton" class="buttons" style="float:right">Clear Storage</button>
+	  <button id="closeButton" class="buttons" style="float:right">Close</button>
+	  <button id="getquestions" class="buttons" style="float:left">Current Quoras</button>
+	  <button id="getbookmarks" class="buttons" style="float:left">BookMarked Quoras</button>
+	  <button id="gethiddens" class="buttons" style="float:left">Hidden Quoras</button> 
+	  <span id="title" style="float:left; margin-top:2px; padding-left:10px;">Message Here</div>
 	</div>
-	<div id="container" style="clear:both; top:80px">
+	<br />
+	<div id="container" style="display:block">
 	    <div id="bookmarks"></div>
 		<div id="hiddens"></div>
-	    <div id="questions" style="margin-top:50px"></div>
+	    <div id="questions"></div>
 	</div>
 </body>
 </html>
