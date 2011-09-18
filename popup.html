@@ -31,18 +31,6 @@ img {
   height:75px;
 }
 
-#getCurrents {
-  float:left;
-  width: 135px;
-  height: 43px;
-  background: no-repeat top; 
-}
-
-#getCurrents:active {
-  background: no-repeat bottom;
-  border: 3px ridge #496383;
-}
-
 </style>
 
 <html>
@@ -86,13 +74,28 @@ img {
 	}
 	
 	function show(divElem) {
-		var currents = document.getElementById('questions')
-		var hiddens = document.getElementById('hiddens')
-		var bookmarks = document.getElementById('bookmarks')
-		currents.style.display = "none"
-		hiddens.style.display = "none"
-		bookmarks.style.display = "none"
+		turnElemNone('questions')
+		turnElemNone('hiddens')
+		turnElemNone('bookmarks')
 		document.getElementById(divElem).style.display = "block"
+		highlightButton(divElem)
+	}
+	
+	function turnElemNone(choice) {
+		var elem = document.getElementById(choice)
+		elem.style.display = "none"
+	}
+	
+	function highlightButton(divElem) {
+		turnElemBorder('getquestions')
+		turnElemBorder('gethiddens')
+		turnElemBorder('getbookmarks')
+		document.getElementById('get' + divElem).style.border = "3px inset"
+	}
+	
+	function turnElemBorder(choice) {
+		var elem = document.getElementById(choice)
+		elem.style.border = "1px ridge"	
 	}
 	
 	function paint(display, tab) {
@@ -361,7 +364,7 @@ img {
 <body>
 	<button id="clearButton" style="float:right">Clear Storage</button>
 	<button id="closeButton" style="float:right">Close</button>
-	<button id="getquestions">Current Quoras</button>
+	<button id="getquestions" style="float:left">Current Quoras</button>
 	<button id="getbookmarks" style="float:left">BookMarked Quoras</button>
 	<button id="gethiddens" style="float:left">Hidden Quoras</button> 
 	<br />
