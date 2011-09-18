@@ -1,0 +1,13 @@
+Two Actions:
+1. Bookmark questions (by tag)
+2. Hide questions (show hidden questions # that would normally appear on page)
+
+Steps:
+1. Find Page. If Quora, do things.
+2. Find User. Load data if user found.
+3. 
+
+Dev relevance: 
+- Browser Interaction: Events (for listening)
+- Browser Interaction: Tabs, Windows
+- Implementation: Background Page, Content Scripts
