@@ -4,11 +4,8 @@ body {
   overflow-x:hidden;
 }
 
-#buttons {
-}
-
 #container {
-	margin-top: 30px;
+/*	margin-top: 40px;*/
 }
 
 a.question_text {
@@ -36,9 +33,6 @@ img {
   vertical-align:middle;
   width:75px;
   height:75px;
-}
-
-p.message {
 }
 
 </style>
@@ -86,8 +80,14 @@ p.message {
 		turnElemNone('questions')
 		turnElemNone('hiddens')
 		turnElemNone('bookmarks')
-		document.getElementById(choice).style.display = "block"
-		deleteNullChoice(choice)
+		var choiceElem = document.getElementById(choice)
+		choiceElem.style.display = "block"
+		if(choiceElem.childNodes.length == 0) {
+			paintNullChoice(choice)
+		}
+		else {
+			deleteNullChoice(choice)
+		}
 	}
 	
 	function turnElemNone(choice) {
@@ -123,9 +123,7 @@ p.message {
 	}
 	
 	function paintSingleQuestion(question, choice, tabId) {
-		var container = document.getElementById(choice)
-		deleteNullChoice(choice)
-		
+		var container = document.getElementById(choice)		
 		if(question && question["rout"] && container) {
 			var href = question["href"]
 			var text = question["text"]
@@ -219,8 +217,8 @@ p.message {
 		var divElem = document.getElementById(choice + '_' + rout)
 		var parent = divElem.parentNode
 		parent.removeChild(divElem)
-		if(parent.childNodes.length == 2) {
-			log("no parent for this child " + rout + " and this choice: " + choice)
+		log("length is : " + parent.childNodes.length)
+		if(parent.childNodes.length == 0) {
 			paintNullChoice(choice)
 		}
 	}
@@ -250,7 +248,6 @@ p.message {
 	}
 	
 	function makeHideButton(href, rout, text, tabId) {
-		log("rout,text,tabId:\n" + rout + "\n" + text + ", ***:" + tabId)
 		var hideButton = document.createElement('button');
 		hideButton.className = 'hideButton';
 		var value = getChoiceFromValues(getValue(rout), "hide");
@@ -372,12 +369,12 @@ p.message {
 	  <button id="getquestions" style="float:left">Current Quoras</button>
 	  <button id="getbookmarks" style="float:left">BookMarked Quoras</button>
 	  <button id="gethiddens" style="float:left">Hidden Quoras</button> 
-	  <p id="title" class="message" style="float:left">Message Here</p>
+	  <div id="title" style="float:left; margin-top:2px; padding-left:5px;">Message Here</div>
 	</div>
-	<div id="container" style="clear:both">
+	<div id="container" style="clear:both; top:80px">
 	    <div id="bookmarks"></div>
 		<div id="hiddens"></div>
-	    <div id="questions"></div>
+	    <div id="questions" style="margin-top:50px"></div>
 	</div>
 </body>
 </html>
