@@ -1,0 +1,296 @@
+<html>
+  <head>
+    <script>
+      //Questions contains the union of the questions, routs, and hrefs that the pages currently have, hashed by rout
+	var routs = [];
+	var hrefs = [];
+	var quest = [];
+	var cacheTime = -1;
+	//Tabs are the quora tabs if true, others if false
+	var logging = true;
+	
+	  chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+ 		if(request.method == "marquora_hidesPlease") {
+			sendResponse({method: "marquora_hidesWelcome", routs: findHides(request.routs)});
+		}
+	  });
+	
+	function sendQuoraMessage(tabId, callback) {
+		chrome.tabs.sendRequest(tabId, {method: "marquora_questionsPlease"}, function(response) {
+			if(response.method == "questions") {
+				response.quest = reduceQuestions(response.quest)
+				if(callback) {
+					callback(response)
+				}
+			}
+		});
+	}
+	
+	function retrieveData(tab, callback) {
+		if(tab) {
+			data = {}
+			data["bookmarks"] = getBookmarks()
+			data["hiddens"]   = getHiddens()
+			sendQuoraMessage(tab.id, function(response) {
+				data["questions"] = null
+				if(response) {
+					data["questions"] = response
+				}
+				callback(data)				
+			});
+		}
+	}
+	
+	  function findHides(routs) {
+		hides = []
+	    for(var i = 0; i < routs.length; i++) {
+		  var value = getItem(routs[i]);
+		  if(value && value.length > 0) {
+			if(value[0].substring(0,4) == "hide") {
+				// log(value[1] + " is value 1 in findHides")
+				hides.push(routs[i])
+			}
+			else if(value[1] && value[1].substring(0,4) == "hide") {
+				// log(value[1] + " is value 1 in findHides")
+				hides.push(routs[i])
+			}
+		  }
+	    }
+		return hides;
+	  }
+	
+	  function updateQuestions(request) {
+		for(var i = 0; i < request.questions.length; i++) {
+			rout = request.routs[i]
+			ques = reduceQuestion(request.quest[i])
+			href = request.hrefs[i]
+			if(routs && include(routs, rout)) {
+				index = routs.indexOf(rout)
+				quest[index] = ques
+				hrefs[index] = href 
+			}
+			else {
+				routs.push(rout)
+				quest.push(ques)
+				hrefs.push(href)
+			}
+		}
+	}
+	
+	function include(array, obj) {
+		log(array + " and obj: " + obj)
+		return (array.indexOf(obj) != -1)
+	}
+	
+	function reduceQuestions(questions) {
+		for(var i = 0; i < questions.length; i++) {
+			questions[i] = reduceQuestion(questions[i])
+		}	
+		return questions
+	}
+	
+	function reduceQuestion(question) {
+		if(question.length > 66) { question = question.substring(0,63) + "..." }
+		return question
+	}
+	
+	function updateRouts(request) {
+		for(var i = 0; i < request.routs.length; i++) {
+			routs.push(request.routs[i])
+		}
+	}
+	
+	  function getQuestions() {
+		questions = {}
+		questions["ques"] = quest
+		questions["rout"] = routs
+		questions["href"] = hrefs
+		return questions;
+	  }
+	
+	function getBookmarks() {
+		return getSelection("book")
+	}
+	
+	function getHiddens() {
+		return getSelection("hide")
+	}
+	
+	function getSelection(select) {
+		var selection = {}
+		selection["quest"] = []
+		selection["routs"] = []
+		selection["hrefs"] = []
+		var storage = getStorage()
+		if(storage) {
+			for(var i = 0; i < storage.length; i++) {
+				// log("value " + i + " is\n" + storage[i])
+				values = storage[i].split("|")
+				if(values[0] == select) {
+					selection["routs"].push(values[1])
+					selection["hrefs"].push(values[2])
+					selection["quest"].push(values[3])
+				}
+			}
+		}
+		return selection
+	}
+	
+	 //Mark is book or unbook
+	  function book(href, rout, text, mark, callback) {
+		value = "book|" + rout + "|" + href + "|" + text
+		if(mark) { 
+		  setItem(value)
+		}
+		else {
+			log("removing item " + value)
+		  removeItem(value);	
+		}
+		callback()
+	  }
+	
+	//Mark is hide or unhide
+	  function hide(tabId, href, rout, text, mark, callback) {
+		value = "hide|" + rout + "|" + href + "|" + text
+	    if(mark) {
+		  setItem(value)
+		  tellTabToHideSingle(tabId, rout)
+	    }
+	    else {
+		  removeItem(value);
+		  tellTabToRevealSingle(tabId, rout)
+		}
+	    callback()
+	  }
+	
+	  function setItem(key) {
+		try {
+		    marquora = window.localStorage.getItem("marquora")
+			if(!marquora) {
+				marquora = []
+			}
+			else {
+				marquora = marquora.split("|||")
+			}
+			marquora.push(value)
+			window.localStorage.setItem("marquora", marquora.join("|||"))
+		} catch(e) {
+		  log("error inside setItem:" + e);
+		}
+	  }
+	  
+	  function getItem(key) {
+	    var value = null;
+		try {
+			marquora = window.localStorage.getItem("marquora")
+			if(marquora) {
+				marquora = marquora.split("|||")
+				value = findKey(marquora, key)
+			}
+		} catch(e) {
+			log("Error inside getItem() for key: " + key);
+			log(e);
+			value = null;
+		}
+		return value;
+	  }
+	
+	function findKey(marquora, key) {
+		values = []
+		if(marquora) {
+			for(var i = 0; i < marquora.length; i++) {
+				if(marquora[i] && marquora[i].length > key.length && marquora[i].substring(5,key.length + 5) == key) {
+					values.push(marquora[i])
+				}
+			}
+		}
+		return values
+	}
+	
+	  function removeItem(key) {
+		key = key.split("|")[1]
+		try {
+			marquora = window.localStorage.getItem("marquora").split("|||")
+			if(marquora) {
+				for(var i = 0; i < marquora.length; i++) {
+					log("key is " + key + "\nmarquora " + i + " is " + marquora[i].substring(5, key.length + 5))
+					if(marquora[i] && marquora[i].substring(5,key.length + 5) == key) {
+						log(marquora[i] + " before removal")
+						delete marquora[i]
+						log(marquora[i] + " after removal")
+					}
+				}
+			}
+			log("leaving removeitem: " + marquora)
+			window.localStorage.setItem("marquora", marquora.join("|||"))
+		} catch(e) {
+			log("Error removing item " + key);
+			log(e);
+		}
+	  }
+	
+	function getStorage() {
+		try {
+			marquora = window.localStorage.getItem("marquora")
+			if(marquora) {
+				return marquora.split("|||")
+			}
+			else {
+				return {}
+			}
+		} catch(e) {
+			log("Error returning storage")
+			log(e)
+		}
+	}
+	
+	  function clearStorage() {
+	    log('about to clear local storage');
+		try {
+			window.localStorage.setItem("marquora", [].join("|||"))
+		} catch(e) {
+			log("error in clearing storage " + e)
+		}
+	    log('cleared');
+   	  }
+	
+	
+	  //Makes questions into 66 or less chars by appending ... if necessary 
+	  function reduceChars(questionArray) {
+		reducedArray = [];
+		for(question in questionArray) {
+			q = questionArray[question];
+			if(q.length > 66) { reducedArray.push(q.substring(0,63) + "..."); }
+			else { reducedArray.push(q) }
+		}
+		return reducedArray;
+	  }
+	  
+	  //checks if the url is valid for quora
+	  function checkQUORA(url) {
+	    var regex = /.*quora\.com.*/;
+		if(regex.test(url)) {
+		  return true;
+		}
+		return false;
+	  }
+	
+	  //Removes unwanted questions from the tab
+	  function tellTabToHideSingle(tabid, rout) {
+	    chrome.tabs.sendRequest(tabid, {method: "hideQuestion", data: rout});	
+	  }
+	
+	  function tellTabToRevealSingle(tabid, rout) {
+	    chrome.tabs.sendRequest(tabid, {method: "revealQuestion", data: rout});	
+	  }
+	
+	  function log(txt) {
+	    if(logging) {
+		  console.log(txt);
+	    }	
+	  }
+	</script>
+  </head>
+</html>
+
+

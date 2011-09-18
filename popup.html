@@ -1,7 +1,26 @@
 <style>
 body {
-  min-width:357px;
+  width: 605px;
   overflow-x:hidden;
+}
+
+a.question_text {
+	width: 450px;
+	margin-right: 10px;
+	float: left;
+}
+
+button.hideButton {
+	margin-right: 10px;
+	width: 45px;
+	float: left;
+	text-align: center;
+}
+
+button.bookButton {
+	float: left;
+	width: 80px;
+	text-align: center;
 }
 
 img {
@@ -13,44 +32,343 @@ img {
 }
 </style>
 
-<script>
-/* in background.html */
-chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.tabs.executeScript(null,
-                           {code:"document.body.bgColor='red'"});
-});
-var req = new XMLHttpRequest();
-/*req.open(
-    "GET",
-    "http://api.flickr.com/services/rest/?" +
-        "method=flickr.photos.search&" +
-        "api_key=90485e931f687a9b9c2a66bf58a3861a&" +
-        "text=hello%20world&" +
-        "safe_search=1&" +  // 1 is "safe"
-        "content_type=1&" +  // 1 is "photos only"
-        "sort=relevance&" +  // another good one is "interestingness-desc"
-        "per_page=20",
-    true);*/
+<html>
+<head>
+  <script>
+    var logging = true;
+	var display = {};
+	var buttonsMade = false;
+	var divcount = 0;
+	
+	chrome.tabs.getSelected(null, function(tab) {
+		buttonsMade = true;
+		makeCloseButton()
+		makeClearButton()
+		makeBookmarksButton()
+		makeHiddenButton()
+		paint(display, tab)
+	});
+	
+	function makeCloseButton() {
+		var closeButton = document.getElementById('closeButton')
+		closeButton.addEventListener("click", function() {
+			self.close();
+		});
+	}
+	
+	function makeClearButton() {
+		var clearButton = document.getElementById('clearButton')
+		clearButton.addEventListener("click", function() {
+			self.clearStorage();
+		});
+	}
+	
+	function makeBookmarksButton() {
+		var getBookmarks = document.getElementById('getBookmarks') 
+		getBookmarks.addEventListener("click", function() {
+			if(this.innerHTML == "BookMarked Quoras") {
+				this.innerHTML = "Current Quoras"
+				show("bookmarks")
+			}
+			else if(this.innerHTML == "Current Quoras") {
+				this.innerHTML = "BookMarked Quoras"
+				show("questions")
+			}
+			revertHideButton();
+		});
+	}
+	
+	function makeHiddenButton() {
+		var getHides = document.getElementById('getHides')
+		getHides.addEventListener("click", function() {
+			if(this.innerHTML == "Hidden Quoras") {
+				this.innerHTML = "Current Quoras"
+				show("hiddens")
+			}
+			else if(this.innerHTML == "Current Quoras") {
+				this.innerHTML = "Hidden Quoras"
+				show("questions")
+			}
+			revertBookmarkButton();
+		});
+	}
+	
+	function revertBookmarkButton() {
+		var getBookmarks = document.getElementById('getBookmarks') 
+		getBookmarks.innerHTML = "BookMarked Quoras"
+	}
+	
+	function revertHideButton() {
+		var getHides = document.getElementById('getHides')
+		getHides.innerHTML = "Hidden Quoras"
+	}
+	
+	function show(divElem) {
+		var currents = document.getElementById('questions')
+		var hiddens = document.getElementById('hiddens')
+		var bookmarks = document.getElementById('bookmarks')
+		currents.style.display = "none"
+		hiddens.style.display = "none"
+		bookmarks.style.display = "none"
+		document.getElementById(divElem).style.display = "block"
+	}
+	
+	function paint(display, tab) {
+		chrome.extension.getBackgroundPage().retrieveData(tab, function(data) {
+			display["questions"] = data["questions"]
+			display["bookmarks"] = data["bookmarks"]
+			display["hiddens"]   = data["hiddens"]
+			
+			paintQuestions(display["questions"], 'questions', tab.id)
+			paintQuestions(display["bookmarks"], "bookmarks", tab.id)
+			paintQuestions(display["hiddens"], 'hiddens', tab.id)
+		});
+	}
+	
+	function paintQuestions(displaychoice, choice, tabId) {
+		if(displaychoice && displaychoice["routs"]) {
+			hrefs = displaychoice["hrefs"]
+			texts = displaychoice["quest"]
+			routs = displaychoice["routs"]
+			log("from paint q's: " + choice + "\n" + routs)
+			for(var i = 0; i < routs.length; i++) {
+				paintSingleQuestion(makeQuestion(hrefs[i], routs[i], texts[i]), choice, tabId)
+			} 
+		}
+		else {
+			log("questions: " + choice + "\tcontainer: " + container + "\tbad in paintQuestions")
+		}
+	}
+	
+	function paintSingleQuestion(question, choice, tabId) {
+		var container = document.getElementById(choice)
+		
+		if(question && question["rout"] && container) {
+			var href = question["href"]
+			var text = question["text"]
+			var rout = question["rout"]
+			var div = document.createElement('div')
+			div.id = choice + "_" + rout;
+			var anchor = makeAnchor(href, text);
+			var hideButton = makeHideButton(href, rout, text, tabId);
+			var bookButton = makeBookButton(href, rout, text);				
+			var storedValues = getValue(rout)
+			
+			
+			div.appendChild(anchor);
+			div.appendChild(hideButton);
+			div.appendChild(bookButton);
+			container.appendChild(div)
+		}
+		else {
+			log("question: " + question + "\tcontainer: " + container + "\tbad in paintSingleQuestion")
+		}
+	}
+	
+	function tellAllDisplays(rout, hidebook, text) {
+		tellSingleDisplay(rout, text, hidebook, "hiddens")
+		tellSingleDisplay(rout, text, hidebook, "questions")
+		tellSingleDisplay(rout, text, hidebook, "bookmarks")
+	}
+	
+	function tellSingleDisplay(rout, text, hidebook, choice) {
+		log(choice + "_" + rout)
+		var buttonElem  = document.getElementById(choice + "_" + rout)
+		if(buttonElem) {
+			var childElems = buttonElem.childNodes;
+			if(hidebook == "hide") {
+				childElems[1].innerHTML = text
+			}
+			else if(hidebook == "book") {
+				childElems[2].innerHTML = text
+			}	
+		}
+	}
+	
+	function peelFromEverywhere(rout) {
+		peelSingleQuestion(rout, "hiddens")
+		peelSingleQuestion(rout, "bookmarks")
+		peelSingleQuestion(rout, "questions")
+	}
+	
+	function peelStorage() {
+		resetDiv("bookmarks")
+		resetDiv("hiddens")
+	}
+	
+	function resetDiv(choice) {
+		var divElem = document.getElementById(choice)
+		var display = divElem.style.display
+		var parentElem = divElem.parentNode
+		parentElem.removeChild(divElem)
+		var newChild = document.createElement('div') 
+		newChild.style.display = display
+		newChild.id = choice
+	}
+	
+	function peelSingleQuestion(rout, choice) {
+		log(choice + "_" + rout)
+		var divElem = document.getElementById(choice + '_' + rout)
+		divElem.parentNode.removeChild(divElem)
+	}
+	
+	function makeAnchor(href, text) {
+		var anchor = document.createElement('a')
+		anchor.href = href;
+		anchor.className = "question_text"
+		anchor.innerHTML = text
+		anchor.addEventListener("click", function() {
+			chrome.tabs.create({url: this.href});
+			self.close();
+			return(false);
+		});
+		return anchor;
+	}
+	
+	function getChoiceFromValues(values, choice) {
+		if(values && choice) {
+			for(var i = 0; i < values.length; i++) {
+				if(values[i].substring(0,4) == choice) {
+					return values[i]
+				}
+			}
+		}
+		return null;
+	}
+	
+	function makeHideButton(href, rout, text, tabId) {
+		var hideButton = document.createElement('button');
+		hideButton.className = 'hideButton';
+		var value = getChoiceFromValues(getValue(rout), "hide");
+		if(value) {
+			hideButton.innerHTML = "Reveal"
+		}
+		else {
+			hideButton.innerHTML = "Hide";
+		}
+		setAttributes(hideButton, href, rout, text)
+		hideButton.addEventListener("click", function() {
+			if(this.innerHTML == "Hide") {
+				this.innerHTML = "Reveal"
+				mark = true
+			}
+			else {
+				this.innerHTML = "Hide"
+				mark = false
+			}
+			hide(this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark, tabId);
+			return(false);
+		});
+		return hideButton;
+	}
+	
+	function makeBookButton(href, rout, text) {
+		var bookButton = document.createElement('button');
+		bookButton.className = 'bookButton';
+		var value = getChoiceFromValues(getValue(rout), "book");
+		if(value) {
+			bookButton.innerHTML = "UnBookmark"
+		}
+		else {
+			bookButton.innerHTML = "Bookmark";
+		}
+		setAttributes(bookButton, href, rout, text)
+		bookButton.addEventListener("click", function() {
+			if(this.innerHTML == "Bookmark") {
+				this.innerHTML = "UnBookmark"
+				mark = true;
+			}
+			else {
+				this.innerHTML = "Bookmark"
+				mark = false;
+			}
+			book(this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
+			return(false)
+		});
+		return bookButton;
+	}
+	
+	function setAttributes(button, href, rout, text) {
+		button.setAttribute('rout', rout)
+		button.setAttribute('href', href)
+		button.setAttribute('text', text)
+	}
+	
+	function hide(href, rout, text, mark, tabId) {
+		chrome.extension.getBackgroundPage().hide(tabId, href, rout, text, mark, function() {
+			if(mark) {
+				paintSingleQuestion(makeQuestion(href, rout, text), 'hiddens')
+				tellAllDisplays(rout, "hide", "Reveal")
+			}
+			else {
+				peelSingleQuestion(rout, "hiddens")
+				tellAllDisplays(rout, "hide", "Hide")
+			}
+		});
+	}
+	
+	function book(href, rout, text, mark) {
+		chrome.extension.getBackgroundPage().book(href, rout, text, mark, function() {
+			if(mark) {
+				paintSingleQuestion(makeQuestion(href, rout, text), 'bookmarks')
+				tellAllDisplays(rout, "book", "UnBookmark")
+			}
+			else {
+				peelSingleQuestion(rout, "bookmarks")
+				tellAllDisplays(rout, "book", "Bookmark")
+			}
+		});
+	}
+	
+	function makeQuestion(href, rout, text) {
+		var question = {}
+		question["href"] = href
+		question["rout"] = rout
+		question["text"] = text
+		return question
+	}
+	
+	function getValue(key) {
+		return chrome.extension.getBackgroundPage().getItem(key);
+	}
+	
+	function log(txt) {
+		if(logging) {
+			chrome.extension.getBackgroundPage().log(txt);
+		}
+	}
+	
+	function clearStorage() {
+		try {
+	        chrome.extension.getBackgroundPage().clearStorage();
+			peelStorage()
+	    } catch(e) {
+	        log("error while clearing local storage");
+	        log(e);
+	     }
+    }
 
-req.onload = showPhotos;
-req.send(null);
+	function include(array, obj) {
+		return (array.indexOf(obj) != -1)
+	}
+  </script>
 
-function showPhotos() {
-  var photos = req.responseXML.getElementsByTagName("photo");
-
-  for (var i = 0, photo; photo = photos[i]; i++) {
-    var img = document.createElement("image");
-    img.src = constructImageURL(photo);
-    document.body.appendChild(img);
-  }
-}
-
-// See: http://www.flickr.com/services/api/misc.urls.html
-function constructImageURL(photo) {
-  return "http://farm" + photo.getAttribute("farm") +
-      ".static.flickr.com/" + photo.getAttribute("server") +
-      "/" + photo.getAttribute("id") +
-      "_" + photo.getAttribute("secret") +
-      "_s.jpg";
-}
-</script>
+</head>
+<body>
+	<button id="closeButton" style="float:left">Close</button>
+	<button id="clearButton" style="float:left">Clear Storage</button>
+	<button id="getBookmarks" style="float:left">BookMarked Quoras</button>
+	<button id="getHides" style="float:left">Hidden Quoras</button> 
+	<br />
+	<div id="container">
+	    <div id="bookmarks">
+	    </div>
+		<div id="hiddens">
+		</div>
+	    <div id="questions">
+	    </div>
+	</div>
+<hr />
+<ul id="savedLinks"></ul>
+</body>
+</html>
