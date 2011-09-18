@@ -39,7 +39,6 @@ img {
 }
 
 p.message {
-	text-align:center;
 }
 
 </style>
@@ -83,11 +82,12 @@ p.message {
 		});
 	}
 	
-	function show(divElem) {
+	function show(choice) {
 		turnElemNone('questions')
 		turnElemNone('hiddens')
 		turnElemNone('bookmarks')
-		document.getElementById(divElem).style.display = "block"
+		document.getElementById(choice).style.display = "block"
+		deleteNullChoice(choice)
 	}
 	
 	function turnElemNone(choice) {
@@ -136,8 +136,6 @@ p.message {
 			var hideButton = makeHideButton(href, rout, text, tabId);
 			var bookButton = makeBookButton(href, rout, text, tabId);				
 			var storedValues = getValue(rout)
-			
-			
 			div.appendChild(anchor);
 			div.appendChild(hideButton);
 			div.appendChild(bookButton);
@@ -149,9 +147,7 @@ p.message {
 	}
 	
 	function paintNullChoice(choice) {
-		log(choice.substring(0,1) + "p is the Id")
-		var p = document.getElementById(choice.substring(0,1) + "p")
-		log(p.innerHTML + " is in choice: " + choice)
+		var p = document.getElementById("title")
 		if(choice == "bookmarks") {
 			p.innerHTML = "No Bookmarks"
 		}
@@ -161,11 +157,10 @@ p.message {
 		else if(choice == "questions") {
 			p.innerHTML = "No Questions"
 		}
-		log(p.innerHTML + " is after choice: " + choice)
 	}
 	
 	function deleteNullChoice(choice) {
-		var p = document.getElementById(choice.substring(0,1) + "p")
+		var p = document.getElementById("title")
 		if(p) {
 			if(choice == "bookmarks") {
 				p.innerHTML = "Bookmarked Quoras"
@@ -224,7 +219,7 @@ p.message {
 		var divElem = document.getElementById(choice + '_' + rout)
 		var parent = divElem.parentNode
 		parent.removeChild(divElem)
-		if(parent.childNodes.length == 3) {
+		if(parent.childNodes.length == 2) {
 			log("no parent for this child " + rout + " and this choice: " + choice)
 			paintNullChoice(choice)
 		}
@@ -377,18 +372,12 @@ p.message {
 	  <button id="getquestions" style="float:left">Current Quoras</button>
 	  <button id="getbookmarks" style="float:left">BookMarked Quoras</button>
 	  <button id="gethiddens" style="float:left">Hidden Quoras</button> 
+	  <p id="title" class="message" style="float:left">Message Here</p>
 	</div>
-	<div id="container">
-	    <div id="bookmarks">
-		  <p id="bp" class="message">Bookmarked Quoras</p>
-	    </div>
-		<div id="hiddens">
-		  <p id="hp" class="message">Hidden Quoras</p>
-		</div>
-	    <div id="questions">
-		  <p id="qp" class="message">Current Quoras</p>
-	    </div>
+	<div id="container" style="clear:both">
+	    <div id="bookmarks"></div>
+		<div id="hiddens"></div>
+	    <div id="questions"></div>
 	</div>
-<hr />
 </body>
 </html>
