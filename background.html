@@ -137,10 +137,8 @@
 		var storage = getStorage()
 		if(storage) {
 			for(var i = 0; i < storage.length; i++) {
-				// log("value " + i + " is\n" + storage[i])
 				values = storage[i].split("|")
 				if(values[0] == select) {
-					log(values[0])
 					selection["routs"].push(values[1])
 					selection["hrefs"].push(values[2])
 					selection["quest"].push(values[3])
@@ -157,7 +155,6 @@
 		  setItem(value)
 		}
 		else {
-			log("removing item " + value)
 		  removeItem(value);	
 		}
 		callback()
@@ -165,6 +162,7 @@
 	
 	//Mark is hide or unhide
 	  function hide(tabId, href, rout, text, mark, callback) {
+		log(tabId + " is tabId in background")
 		value = "hide|" + rout + "|" + href + "|" + text
 	    if(mark) {
 		  setItem(value)
@@ -227,15 +225,11 @@
 			marquora = window.localStorage.getItem("marquora").split("|||")
 			if(marquora) {
 				for(var i = 0; i < marquora.length; i++) {
-					log("key is " + key + "\nmarquora " + i + " is " + marquora[i].substring(5, key.length + 5))
 					if(marquora[i] && marquora[i].substring(5,key.length + 5) == key) {
-						log(marquora[i] + " before removal")
 						delete marquora[i]
-						log(marquora[i] + " after removal")
 					}
 				}
 			}
-			log("leaving removeitem: " + marquora)
 			window.localStorage.setItem("marquora", marquora.join("|||"))
 		} catch(e) {
 			log("Error removing item " + key);
@@ -259,13 +253,11 @@
 	}
 	
 	  function clearStorage() {
-	    log('about to clear local storage');
 		try {
 			window.localStorage.setItem("marquora", [].join("|||"))
 		} catch(e) {
 			log("error in clearing storage " + e)
 		}
-	    log('cleared');
    	  }
 	
 	
@@ -291,6 +283,7 @@
 	
 	  //Removes unwanted questions from the tab
 	  function tellTabToHideSingle(tabid, rout) {
+		log("tabid in telltabtohide: " + tabid)
 	    chrome.tabs.sendRequest(tabid, {method: "hideQuestion", data: rout});	
 	  }
 	

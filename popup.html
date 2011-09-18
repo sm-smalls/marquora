@@ -1,7 +1,14 @@
 <style>
 body {
-  width: 605px;
+  width: 620px;
   overflow-x:hidden;
+}
+
+#buttons {
+}
+
+#container {
+	margin-top: 30px;
 }
 
 a.question_text {
@@ -31,6 +38,10 @@ img {
   height:75px;
 }
 
+p.message {
+	text-align:center;
+}
+
 </style>
 
 <html>
@@ -39,7 +50,6 @@ img {
     var logging = true;
 	var display = {};
 	var buttonsMade = false;
-	var divcount = 0;
 	
 	chrome.tabs.getSelected(null, function(tab) {
 		buttonsMade = true;
@@ -78,24 +88,11 @@ img {
 		turnElemNone('hiddens')
 		turnElemNone('bookmarks')
 		document.getElementById(divElem).style.display = "block"
-		highlightButton(divElem)
 	}
 	
 	function turnElemNone(choice) {
 		var elem = document.getElementById(choice)
 		elem.style.display = "none"
-	}
-	
-	function highlightButton(divElem) {
-		turnElemBorder('getquestions')
-		turnElemBorder('gethiddens')
-		turnElemBorder('getbookmarks')
-		document.getElementById('get' + divElem).style.border = "3px inset"
-	}
-	
-	function turnElemBorder(choice) {
-		var elem = document.getElementById(choice)
-		elem.style.border = "1px ridge"	
 	}
 	
 	function paint(display, tab) {
@@ -137,7 +134,7 @@ img {
 			div.id = choice + "_" + rout;
 			var anchor = makeAnchor(href, text);
 			var hideButton = makeHideButton(href, rout, text, tabId);
-			var bookButton = makeBookButton(href, rout, text);				
+			var bookButton = makeBookButton(href, rout, text, tabId);				
 			var storedValues = getValue(rout)
 			
 			
@@ -152,20 +149,33 @@ img {
 	}
 	
 	function paintNullChoice(choice) {
-		var container = document.getElementById(choice)
-		var text = "There are no questions in this section"
-		var div = document.createElement('div')
-		var p = document.createElement('p')
-		p.innerHTML = text
-		div.id = choice + "_empty"
-		div.appendChild(p)
-		container.appendChild(div)
+		log(choice.substring(0,1) + "p is the Id")
+		var p = document.getElementById(choice.substring(0,1) + "p")
+		log(p.innerHTML + " is in choice: " + choice)
+		if(choice == "bookmarks") {
+			p.innerHTML = "No Bookmarks"
+		}
+		else if(choice == "hiddens") {
+			p.innerHTML = "Nothing Hidden"
+		}
+		else if(choice == "questions") {
+			p.innerHTML = "No Questions"
+		}
+		log(p.innerHTML + " is after choice: " + choice)
 	}
 	
 	function deleteNullChoice(choice) {
-		var div = document.getElementById(choice + "_empty")
-		if(div) {
-			div.parentNode.removeChild(div)	
+		var p = document.getElementById(choice.substring(0,1) + "p")
+		if(p) {
+			if(choice == "bookmarks") {
+				p.innerHTML = "Bookmarked Quoras"
+			}
+			else if(choice == "hiddens") {
+				p.innerHTML = "Hidden Quoras"
+			}
+			else if(choice == "questions") {
+				p.innerHTML = "Current Quoras"
+			}
 		}
 	}
 	
@@ -214,7 +224,8 @@ img {
 		var divElem = document.getElementById(choice + '_' + rout)
 		var parent = divElem.parentNode
 		parent.removeChild(divElem)
-		if(!parent.hasChildNodes()) {
+		if(parent.childNodes.length == 3) {
+			log("no parent for this child " + rout + " and this choice: " + choice)
 			paintNullChoice(choice)
 		}
 	}
@@ -244,6 +255,7 @@ img {
 	}
 	
 	function makeHideButton(href, rout, text, tabId) {
+		log("rout,text,tabId:\n" + rout + "\n" + text + ", ***:" + tabId)
 		var hideButton = document.createElement('button');
 		hideButton.className = 'hideButton';
 		var value = getChoiceFromValues(getValue(rout), "hide");
@@ -263,13 +275,13 @@ img {
 				this.innerHTML = "Hide"
 				mark = false
 			}
-			hide(this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark, tabId);
+			hide(tabId, this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
 			return(false);
 		});
 		return hideButton;
 	}
 	
-	function makeBookButton(href, rout, text) {
+	function makeBookButton(href, rout, text, tabId) {
 		var bookButton = document.createElement('button');
 		bookButton.className = 'bookButton';
 		var value = getChoiceFromValues(getValue(rout), "book");
@@ -289,7 +301,7 @@ img {
 				this.innerHTML = "Bookmark"
 				mark = false;
 			}
-			book(this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
+			book(tabId, this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
 			return(false)
 		});
 		return bookButton;
@@ -301,10 +313,11 @@ img {
 		button.setAttribute('text', text)
 	}
 	
-	function hide(href, rout, text, mark, tabId) {
+	function hide(tabId, href, rout, text, mark) {
+		log(tabId + " is tabid")
 		chrome.extension.getBackgroundPage().hide(tabId, href, rout, text, mark, function() {
 			if(mark) {
-				paintSingleQuestion(makeQuestion(href, rout, text), 'hiddens')
+				paintSingleQuestion(makeQuestion(href, rout, text), 'hiddens', tabId)
 				tellAllDisplays(rout, "hide", "Reveal")
 			}
 			else {
@@ -314,10 +327,10 @@ img {
 		});
 	}
 	
-	function book(href, rout, text, mark) {
+	function book(tabId, href, rout, text, mark) {
 		chrome.extension.getBackgroundPage().book(href, rout, text, mark, function() {
 			if(mark) {
-				paintSingleQuestion(makeQuestion(href, rout, text), 'bookmarks')
+				paintSingleQuestion(makeQuestion(href, rout, text), 'bookmarks', tabId)
 				tellAllDisplays(rout, "book", "UnBookmark")
 			}
 			else {
@@ -354,29 +367,28 @@ img {
 	        log(e);
 	     }
     }
-
-	function include(array, obj) {
-		return (array.indexOf(obj) != -1)
-	}
   </script>
 
 </head>
 <body>
-	<button id="clearButton" style="float:right">Clear Storage</button>
-	<button id="closeButton" style="float:right">Close</button>
-	<button id="getquestions" style="float:left">Current Quoras</button>
-	<button id="getbookmarks" style="float:left">BookMarked Quoras</button>
-	<button id="gethiddens" style="float:left">Hidden Quoras</button> 
-	<br />
+	<div id="buttons">
+	  <button id="clearButton" style="float:right">Clear Storage</button>
+	  <button id="closeButton" style="float:right">Close</button>
+	  <button id="getquestions" style="float:left">Current Quoras</button>
+	  <button id="getbookmarks" style="float:left">BookMarked Quoras</button>
+	  <button id="gethiddens" style="float:left">Hidden Quoras</button> 
+	</div>
 	<div id="container">
 	    <div id="bookmarks">
+		  <p id="bp" class="message">Bookmarked Quoras</p>
 	    </div>
 		<div id="hiddens">
+		  <p id="hp" class="message">Hidden Quoras</p>
 		</div>
 	    <div id="questions">
+		  <p id="qp" class="message">Current Quoras</p>
 	    </div>
 	</div>
 <hr />
-<ul id="savedLinks"></ul>
 </body>
 </html>
