@@ -1,5 +1,4 @@
 while(document.readyState != "complete" && document.readyState != "interactive") {}
-console.log(document.readyState)
 routing = [];
 domunits = {};
 
@@ -61,6 +60,7 @@ function findQuestions(url) {
 				rout = findRoutInSinglePage(domUnit.innerHTML)
 				if(checkRout(rout)) {
 					domunits[rout] = domUnit;
+					console.log("rout,question.url: " + rout + " , " + getQuestionFromH1() + " , " + url)
 					routing.push(rout);
 					questions.push(getQuestionFromH1())
 					href.push(url)
@@ -77,15 +77,12 @@ function findQuestions(url) {
 
 function getQuestionFromH1() {
 	h1s = document.body.getElementsByTagName("h1");
-	console.log(h1s.length + " is length " + h1s[0].innerHTML.split("span>")[1])
 	return h1s[0].innerHTML.split("span>")[1]
 }
 
 function checkRout(rout) {
-	console.log("checking rout: " + rout)
   var regex = /\d{6}/;
 	if(regex.test(rout)) {
-		console.log("checked out ok")
 	  return true;
 	}
 	return false;
@@ -95,7 +92,8 @@ function findRoutInSinglePage(text) {
 	if(text) {
 		var index = text.indexOf("qid")
 		if(index > -1) {
-			return text.substring(index+7, index+13)
+			text = "q://question/(" + text.substring(index+7, index+13) + ")"
+			return text
 		}
 	}
 }
