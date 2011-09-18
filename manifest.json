@@ -1,15 +1,14 @@
 {
-  "name": "My First Extension",
-  "version": "1.0",
-  "description": "The first extension that I made.",
+  "name": "Marquora",
+  "version": "1.5",
+  "description": "For My Quora Use",
   "background_page": "background.html",
   "browser_action": {
     "default_icon": "icon.png",
-	"default_name": "Page Language",
 	"popup": "popup.html"
   },
   "permissions": [
-	"tabs", "http://*/*", "https://*/*"
+	"tabs"
   ],
   "content_scripts": [
     {

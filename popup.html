@@ -1,47 +1,54 @@
-<style>
-body {
-  width: 620px;
-  overflow-x:hidden;
-}
 
-#container {
-	margin-top: 40px;
-}
 
-a.question_text {
-	width: 450px;
-	margin-left: 10px;
-	float: left;
-}
-
-button.hideButton {
-	width: 45px;
-	float: left;
-	text-align: center;
-}
-
-button.bookButton {
-	float: left;
-	width: 99px;
-	text-align: center;
-}
-
-button.buttons {
-	display:block;
-}
-
-img {
-  margin:5px;
-  border:2px solid black;
-  vertical-align:middle;
-  width:75px;
-  height:75px;
-}
-
-</style>
-
+<!DOCTYPE html>
 <html>
+
 <head>
+	<style>
+	body {
+/*	  width: 620px;*/
+/*	  height: 200px;*/
+ 	  width: 620px;
+	  overflow-x:hidden;
+	  margin: auto;
+	}
+
+	#container {
+		margin-top: 40px;
+	}
+
+	a.question_text {
+		width: 450px;
+		margin-left: 10px;
+		float: left;
+	}
+
+	button.hideButton {
+		width: 45px;
+		float: left;
+		text-align: center;
+	}
+
+	button.bookButton {
+		float: left;
+		width: 99px;
+		text-align: center;
+	}
+
+	button.buttons {
+		display:block;
+	}
+
+	img {
+	  margin:5px;
+	  border:2px solid black;
+	  vertical-align:middle;
+	  width:75px;
+	  height:75px;
+	}
+
+	</style>
+	
   <script>
     var logging = true;
 	var display = {};
@@ -143,7 +150,7 @@ img {
 			container.appendChild(div)
 		}
 		else {
-			log("question: " + question + "\tcontainer: " + container + "\tbad in paintSingleQuestion")
+			// log("question: " + question + "\tcontainer: " + container + "\tbad in paintSingleQuestion")
 		}
 	}
 	
@@ -182,7 +189,6 @@ img {
 	}
 	
 	function tellSingleDisplay(rout, text, hidebook, choice) {
-		log(choice + "_" + rout)
 		var buttonElem  = document.getElementById(choice + "_" + rout)
 		if(buttonElem) {
 			var childElems = buttonElem.childNodes;
@@ -220,7 +226,6 @@ img {
 		var divElem = document.getElementById(choice + '_' + rout)
 		var parent = divElem.parentNode
 		parent.removeChild(divElem)
-		log("length is : " + parent.childNodes.length)
 		if(parent.childNodes.length == 0) {
 			paintNullChoice(choice)
 		}
@@ -309,7 +314,6 @@ img {
 	}
 	
 	function hide(tabId, href, rout, text, mark) {
-		log(tabId + " is tabid")
 		chrome.extension.getBackgroundPage().hide(tabId, href, rout, text, mark, function() {
 			if(mark) {
 				paintSingleQuestion(makeQuestion(href, rout, text), 'hiddens', tabId)
@@ -367,12 +371,12 @@ img {
 </head>
 <body>
 	<div id="buttons" style="display:block">
-	  <button id="clearButton" class="buttons" style="float:right">Clear Storage</button>
-	  <button id="closeButton" class="buttons" style="float:right">Close</button>
 	  <button id="getquestions" class="buttons" style="float:left">Current Quoras</button>
+	  <span id="title" style="float:left; margin-top:2px; padding-left:5px; padding-right: 5px;">Message Here</div>
 	  <button id="getbookmarks" class="buttons" style="float:left">BookMarked Quoras</button>
-	  <button id="gethiddens" class="buttons" style="float:left">Hidden Quoras</button> 
-	  <span id="title" style="float:left; margin-top:2px; padding-left:10px;">Message Here</div>
+	  <button id="gethiddens" class="buttons" style="float:left;">Hidden Quoras</button>
+	  <button id="closeButton" class="buttons" style="float:right; margin-right: 16px">Close</button> 
+	  <button id="clearButton" class="buttons" style="float:right">Clear Storage</button>
 	</div>
 	<br />
 	<div id="container" style="display:block">

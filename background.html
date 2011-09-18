@@ -15,8 +15,8 @@
 		}
 	  });
 	
-	function sendQuoraMessage(tabId, callback) {
-		chrome.tabs.sendRequest(tabId, {method: "marquora_questionsPlease"}, function(response) {
+	function sendQuoraMessage(tabId, tabUrl, callback) {
+		chrome.tabs.sendRequest(tabId, {method: "marquora_questionsPlease", url: tabUrl}, function(response) {
 			if(response.method == "questions") {
 				response.quest = reduceQuestions(response.quest)
 				if(callback) {
@@ -33,7 +33,7 @@
 			data["hiddens"]   = getHiddens()
 			
 			if(checkQuora(tab.url)) {
-				sendQuoraMessage(tab.id, function(response) {
+				sendQuoraMessage(tab.id, tab.url, function(response) {
 					data["questions"] = null
 					if(response) {
 						data["questions"] = response
@@ -162,7 +162,6 @@
 	
 	//Mark is hide or unhide
 	  function hide(tabId, href, rout, text, mark, callback) {
-		log(tabId + " is tabId in background")
 		value = "hide|" + rout + "|" + href + "|" + text
 	    if(mark) {
 		  setItem(value)
@@ -283,7 +282,6 @@
 	
 	  //Removes unwanted questions from the tab
 	  function tellTabToHideSingle(tabid, rout) {
-		log("tabid in telltabtohide: " + tabid)
 	    chrome.tabs.sendRequest(tabid, {method: "hideQuestion", data: rout});	
 	  }
 	

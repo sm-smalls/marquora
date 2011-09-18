@@ -3,7 +3,7 @@ console.log(document.readyState)
 routing = [];
 domunits = {};
 
-findQuestions(document.body.getElementsByClassName("pagedlist_item"))
+findQuestions()
 
 chrome.extension.sendRequest({method: "marquora_hidesPlease", routs: routing}, function(response) {
 	if(response.method == "marquora_hidesWelcome") {
@@ -19,7 +19,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		revealQuestion(request.data);
 	}
 	else if (request.method == "marquora_questionsPlease") {
-		var ques_href = findQuestions(document.body.getElementsByClassName("pagedlist_item"));
+		var ques_href = findQuestions(request.url);
 		sendResponse({method: "questions", quest: ques_href[0], hrefs: ques_href[1], routs:routing});
 	} 
 	else if (request.method == "marquora_hideThese") {
@@ -29,10 +29,12 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-function findQuestions(items) {
+function findQuestions(url) {
 	clearData()
 	href = [];
 	questions = [];
+	var rout = null;
+	items = document.body.getElementsByClassName("pagedlist_item");
 	for(var item in items) {
 		var domUnit = items[item]
 		if(domUnit.getElementsByClassName) {
@@ -51,7 +53,51 @@ function findQuestions(items) {
 			}
 		}			
 	}
+	if(url && items.length == 0) {
+		items = document.body.getElementsByTagName("script");
+		for(var item in items) {
+			var domUnit = items[item]
+			if(domUnit) {
+				rout = findRoutInSinglePage(domUnit.innerHTML)
+				if(checkRout(rout)) {
+					domunits[rout] = domUnit;
+					routing.push(rout);
+					questions.push(getQuestionFromH1())
+					href.push(url)
+					break
+				}
+				else {
+					rout = null
+				}
+			}
+		}	
+	}
 	return [questions, href];
+}
+
+function getQuestionFromH1() {
+	h1s = document.body.getElementsByTagName("h1");
+	console.log(h1s.length + " is length " + h1s[0].innerHTML.split("span>")[1])
+	return h1s[0].innerHTML.split("span>")[1]
+}
+
+function checkRout(rout) {
+	console.log("checking rout: " + rout)
+  var regex = /\d{6}/;
+	if(regex.test(rout)) {
+		console.log("checked out ok")
+	  return true;
+	}
+	return false;
+}
+
+function findRoutInSinglePage(text) {
+	if(text) {
+		var index = text.indexOf("qid")
+		if(index > -1) {
+			return text.substring(index+7, index+13)
+		}
+	}
 }
 
 function clearData() {
@@ -68,21 +114,17 @@ function getQLink(domUnit) {
 }
 
 function hideQuestions(routs) {
-	console.log("hiding questions");
 	for(var i = 0; i < routs.length; i++) {
 		hideQuestion(routs[i])
 	}
-	console.log("finished hiding questions")
 }
 
 function hideQuestion(rout) {
 	domunit = domunits[rout]
 	if(domunit) {
-		console.log("hiding this dom " + rout)
 		domunit.style.display = "none"
 	}
 	else {
-		console.log("nothing here to hide .. rout: " + rout)
 	}
 }
 
@@ -92,7 +134,7 @@ function revealQuestion(rout) {
 		domunit.style.display = "block"
 	}
 	else {
-		console.log("nothing to display here")
+		// console.log("nothing to display here")
 	}
 }
 
