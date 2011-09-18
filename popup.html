@@ -30,6 +30,19 @@ img {
   width:75px;
   height:75px;
 }
+
+#getCurrents {
+  float:left;
+  width: 135px;
+  height: 43px;
+  background: no-repeat top; 
+}
+
+#getCurrents:active {
+  background: no-repeat bottom;
+  border: 3px ridge #496383;
+}
+
 </style>
 
 <html>
@@ -44,8 +57,9 @@ img {
 		buttonsMade = true;
 		makeCloseButton()
 		makeClearButton()
-		makeBookmarksButton()
-		makeHiddenButton()
+		makeGetChoiceButton('getquestions')
+		makeGetChoiceButton('getbookmarks')
+		makeGetChoiceButton('gethiddens')
 		paint(display, tab)
 	});
 	
@@ -63,44 +77,12 @@ img {
 		});
 	}
 	
-	function makeBookmarksButton() {
-		var getBookmarks = document.getElementById('getBookmarks') 
-		getBookmarks.addEventListener("click", function() {
-			if(this.innerHTML == "BookMarked Quoras") {
-				this.innerHTML = "Current Quoras"
-				show("bookmarks")
-			}
-			else if(this.innerHTML == "Current Quoras") {
-				this.innerHTML = "BookMarked Quoras"
-				show("questions")
-			}
-			revertHideButton();
+	function makeGetChoiceButton(getChoice) {
+		var choice = getChoice.substring(3)
+		var button = document.getElementById(getChoice)
+		button.addEventListener("click", function() {
+			show(getChoice.substring(3))
 		});
-	}
-	
-	function makeHiddenButton() {
-		var getHides = document.getElementById('getHides')
-		getHides.addEventListener("click", function() {
-			if(this.innerHTML == "Hidden Quoras") {
-				this.innerHTML = "Current Quoras"
-				show("hiddens")
-			}
-			else if(this.innerHTML == "Current Quoras") {
-				this.innerHTML = "Hidden Quoras"
-				show("questions")
-			}
-			revertBookmarkButton();
-		});
-	}
-	
-	function revertBookmarkButton() {
-		var getBookmarks = document.getElementById('getBookmarks') 
-		getBookmarks.innerHTML = "BookMarked Quoras"
-	}
-	
-	function revertHideButton() {
-		var getHides = document.getElementById('getHides')
-		getHides.innerHTML = "Hidden Quoras"
 	}
 	
 	function show(divElem) {
@@ -122,26 +104,27 @@ img {
 			paintQuestions(display["questions"], 'questions', tab.id)
 			paintQuestions(display["bookmarks"], "bookmarks", tab.id)
 			paintQuestions(display["hiddens"], 'hiddens', tab.id)
+			show("questions")
 		});
 	}
 	
 	function paintQuestions(displaychoice, choice, tabId) {
-		if(displaychoice && displaychoice["routs"]) {
+		if(displaychoice && displaychoice["routs"] && displaychoice["routs"].length > 0) {
 			hrefs = displaychoice["hrefs"]
 			texts = displaychoice["quest"]
 			routs = displaychoice["routs"]
-			log("from paint q's: " + choice + "\n" + routs)
 			for(var i = 0; i < routs.length; i++) {
 				paintSingleQuestion(makeQuestion(hrefs[i], routs[i], texts[i]), choice, tabId)
 			} 
 		}
 		else {
-			log("questions: " + choice + "\tcontainer: " + container + "\tbad in paintQuestions")
+			paintNullChoice(choice) 
 		}
 	}
 	
 	function paintSingleQuestion(question, choice, tabId) {
 		var container = document.getElementById(choice)
+		deleteNullChoice(choice)
 		
 		if(question && question["rout"] && container) {
 			var href = question["href"]
@@ -162,6 +145,24 @@ img {
 		}
 		else {
 			log("question: " + question + "\tcontainer: " + container + "\tbad in paintSingleQuestion")
+		}
+	}
+	
+	function paintNullChoice(choice) {
+		var container = document.getElementById(choice)
+		var text = "There are no questions in this section"
+		var div = document.createElement('div')
+		var p = document.createElement('p')
+		p.innerHTML = text
+		div.id = choice + "_empty"
+		div.appendChild(p)
+		container.appendChild(div)
+	}
+	
+	function deleteNullChoice(choice) {
+		var div = document.getElementById(choice + "_empty")
+		if(div) {
+			div.parentNode.removeChild(div)	
 		}
 	}
 	
@@ -207,9 +208,12 @@ img {
 	}
 	
 	function peelSingleQuestion(rout, choice) {
-		log(choice + "_" + rout)
 		var divElem = document.getElementById(choice + '_' + rout)
-		divElem.parentNode.removeChild(divElem)
+		var parent = divElem.parentNode
+		parent.removeChild(divElem)
+		if(!parent.hasChildNodes()) {
+			paintNullChoice(choice)
+		}
 	}
 	
 	function makeAnchor(href, text) {
@@ -355,10 +359,11 @@ img {
 
 </head>
 <body>
-	<button id="closeButton" style="float:left">Close</button>
-	<button id="clearButton" style="float:left">Clear Storage</button>
-	<button id="getBookmarks" style="float:left">BookMarked Quoras</button>
-	<button id="getHides" style="float:left">Hidden Quoras</button> 
+	<button id="clearButton" style="float:right">Clear Storage</button>
+	<button id="closeButton" style="float:right">Close</button>
+	<button id="getquestions">Current Quoras</button>
+	<button id="getbookmarks" style="float:left">BookMarked Quoras</button>
+	<button id="gethiddens" style="float:left">Hidden Quoras</button> 
 	<br />
 	<div id="container">
 	    <div id="bookmarks">

@@ -19,6 +19,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		revealQuestion(request.data);
 	}
 	else if (request.method == "marquora_questionsPlease") {
+		log("got to extension marquora_questionsPlease")
 		var ques_href = findQuestions(document.body.getElementsByClassName("pagedlist_item"));
 		sendResponse({method: "questions", quest: ques_href[0], hrefs: ques_href[1], routs:routing});
 	} 

@@ -31,15 +31,31 @@
 			data = {}
 			data["bookmarks"] = getBookmarks()
 			data["hiddens"]   = getHiddens()
-			sendQuoraMessage(tab.id, function(response) {
+			
+			if(checkQuora(tab.url)) {
+				sendQuoraMessage(tab.id, function(response) {
+					data["questions"] = null
+					if(response) {
+						data["questions"] = response
+					}
+					callback(data)				
+				});	
+			}
+			else {
 				data["questions"] = null
-				if(response) {
-					data["questions"] = response
-				}
-				callback(data)				
-			});
+				callback(data)
+			}
 		}
 	}
+	
+	  //checks if the url is valid for quora
+	  function checkQUORA(url) {
+	    var regex = /.*quora\.com.*/;
+		if(regex.test(url)) {
+		  return true;
+		}
+		return false;
+	  }
 	
 	  function findHides(routs) {
 		hides = []
@@ -47,11 +63,9 @@
 		  var value = getItem(routs[i]);
 		  if(value && value.length > 0) {
 			if(value[0].substring(0,4) == "hide") {
-				// log(value[1] + " is value 1 in findHides")
 				hides.push(routs[i])
 			}
 			else if(value[1] && value[1].substring(0,4) == "hide") {
-				// log(value[1] + " is value 1 in findHides")
 				hides.push(routs[i])
 			}
 		  }
@@ -78,7 +92,6 @@
 	}
 	
 	function include(array, obj) {
-		log(array + " and obj: " + obj)
 		return (array.indexOf(obj) != -1)
 	}
 	
@@ -127,6 +140,7 @@
 				// log("value " + i + " is\n" + storage[i])
 				values = storage[i].split("|")
 				if(values[0] == select) {
+					log(values[0])
 					selection["routs"].push(values[1])
 					selection["hrefs"].push(values[2])
 					selection["quest"].push(values[3])
@@ -267,7 +281,7 @@
 	  }
 	  
 	  //checks if the url is valid for quora
-	  function checkQUORA(url) {
+	  function checkQuora(url) {
 	    var regex = /.*quora\.com.*/;
 		if(regex.test(url)) {
 		  return true;
