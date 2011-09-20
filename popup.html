@@ -74,7 +74,7 @@
 	function makeClearButton() {
 		var clearButton = document.getElementById('clearButton')
 		clearButton.addEventListener("click", function() {
-			self.clearStorage();
+			clearStorage();
 		});
 	}
 	
@@ -220,6 +220,7 @@
 		var newChild = document.createElement('div') 
 		newChild.style.display = display
 		newChild.id = choice
+		parentElem.appendChild(newChild)
 	}
 	
 	function peelSingleQuestion(rout, choice) {
