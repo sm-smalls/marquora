@@ -6,9 +6,9 @@
 <head>
 	<style>
 	body {
-/*	  width: 620px;*/
+/*	  width: 60px;*/
 /*	  height: 200px;*/
- 	  width: 620px;
+ 	  width: 630px;
 	  overflow-x:hidden;
 	  margin: auto;
 	}
@@ -20,6 +20,7 @@
 	a.question_text {
 		width: 450px;
 		margin-left: 10px;
+		margin-right: 10px;
 		float: left;
 	}
 
@@ -310,6 +311,11 @@
 	function setAttributes(button, href, rout, text) {
 		button.setAttribute('rout', rout)
 		button.setAttribute('href', href)
+		var index = 0;
+		while(text.substring(index,index+1) != " ") {
+			index = index + 1
+		}
+		text = text.substring(index)
 		button.setAttribute('text', text)
 	}
 	

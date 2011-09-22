@@ -40,12 +40,18 @@ function findQuestions(url) {
 			var children = domUnit.getElementsByClassName("feed_item_question");
 			if(children.length > 0) {
 				var question_link = getQLink(domUnit);
+				var number_answers = getNumberAnswers(domUnit);
 				if(!(question_link == "fail")) {	
 					rout = question_link.getAttribute('routing')
 					if(!domunits[rout]) {			
 						href.push(question_link.href);
 						routing.push(rout);
-						questions.push(question_link.text);
+						if(!(number_answers == null)) {
+							questions.push("(" + number_answers + ")  " + question_link.text)
+						}
+						else {
+							questions.push(question_link.text)
+						}
 						domunits[rout] = domUnit;
 					}
 				}
@@ -54,13 +60,18 @@ function findQuestions(url) {
 	}
 	if(url && items.length == 0) {
 		items = document.body.getElementsByTagName("script");
+		console.log("after looking for script")
 		for(var item in items) {
+			console.log("something in the scripts")
 			var domUnit = items[item]
 			if(domUnit) {
 				rout = findRoutInSinglePage(domUnit.innerHTML)
+				console.log("rout: " + rout)
 				if(checkRout(rout)) {
+					console.log("passed checkrout: " + rout)
+					rout = "q://question/(" + rout + ")"
+					console.log(rout)
 					domunits[rout] = domUnit;
-					console.log("rout,question.url: " + rout + " , " + getQuestionFromH1() + " , " + url)
 					routing.push(rout);
 					questions.push(getQuestionFromH1())
 					href.push(url)
@@ -81,7 +92,7 @@ function getQuestionFromH1() {
 }
 
 function checkRout(rout) {
-  var regex = /\d{6}/;
+  var regex = /\d{5,6}/;
 	if(regex.test(rout)) {
 	  return true;
 	}
@@ -90,9 +101,18 @@ function checkRout(rout) {
 
 function findRoutInSinglePage(text) {
 	if(text) {
-		var index = text.indexOf("qid")
+		var index = text.indexOf("\"qid")
 		if(index > -1) {
-			text = "q://question/(" + text.substring(index+7, index+13) + ")"
+			var start = 0
+			var end = 0
+			var regex = /\d/;
+			while(!regex.test(text.substring(index + start, index + start + 1))) {
+				start = start + 1
+			}
+			while(regex.test(text.substring(index + start + end, index + start + end + 1))) {
+				end = end + 1
+			}
+			text = text.substring(index+start, index+start+end)
 			return text
 		}
 	}
@@ -109,6 +129,14 @@ function getQLink(domUnit) {
 		return question_link.item(0);
 	}
 	return "fail";
+}
+
+function getNumberAnswers(domUnit) {
+	number_answers = domUnit.getElementsByClassName("number_answers");
+	if(number_answers && number_answers.item(0)) {
+		return number_answers.item(0).innerHTML.split(" ")[0]
+	}
+	return null
 }
 
 function hideQuestions(routs) {
