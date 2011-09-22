@@ -5,7 +5,6 @@
 	var routs = [];
 	var hrefs = [];
 	var quest = [];
-	var cacheTime = -1;
 	//Tabs are the quora tabs if true, others if false
 	var logging = true;
 	
@@ -72,24 +71,6 @@
 	    }
 		return hides;
 	  }
-	
-	  function updateQuestions(request) {
-		for(var i = 0; i < request.questions.length; i++) {
-			rout = request.routs[i]
-			ques = reduceQuestion(request.quest[i])
-			href = request.hrefs[i]
-			if(routs && include(routs, rout)) {
-				index = routs.indexOf(rout)
-				quest[index] = ques
-				hrefs[index] = href 
-			}
-			else {
-				routs.push(rout)
-				quest.push(ques)
-				hrefs.push(href)
-			}
-		}
-	}
 	
 	function include(array, obj) {
 		return (array.indexOf(obj) != -1)

@@ -60,17 +60,12 @@ function findQuestions(url) {
 	}
 	if(url && items.length == 0) {
 		items = document.body.getElementsByTagName("script");
-		console.log("after looking for script")
 		for(var item in items) {
-			console.log("something in the scripts")
 			var domUnit = items[item]
 			if(domUnit) {
 				rout = findRoutInSinglePage(domUnit.innerHTML)
-				console.log("rout: " + rout)
 				if(checkRout(rout)) {
-					console.log("passed checkrout: " + rout)
 					rout = "q://question/(" + rout + ")"
-					console.log(rout)
 					domunits[rout] = domUnit;
 					routing.push(rout);
 					questions.push(getQuestionFromH1())
