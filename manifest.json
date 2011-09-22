@@ -1,6 +1,6 @@
 {
   "name": "Marquora",
-  "version": "1.5",
+  "version": "2",
   "description": "For My Quora Use",
   "background_page": "background.html",
   "browser_action": {
