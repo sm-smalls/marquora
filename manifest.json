@@ -1,7 +1,7 @@
 {
   "name": "Marquora",
-  "version": "2",
-  "description": "For My Quora Use",
+  "version": "2.1",
+  "description": "Quickly see, bookmark, and hide questions on Quora",
   "background_page": "background.html",
   "browser_action": {
     "default_icon": "icon.png",
