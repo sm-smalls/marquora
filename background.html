@@ -2,9 +2,9 @@
   <head>
     <script>
       //Questions contains the union of the questions, routs, and hrefs that the pages currently have, hashed by rout
-	var routs = [];
-	var hrefs = [];
-	var quest = [];
+	var routs;
+	var hrefs;
+	var quest;
 	//Tabs are the quora tabs if true, others if false
 	var logging = true;
 	
@@ -36,12 +36,13 @@
 					data["questions"] = null
 					if(response) {
 						data["questions"] = response
+						setQuestions(data["questions"])
 					}
 					callback(data)				
 				});	
 			}
 			else {
-				data["questions"] = null
+				data["questions"] = getQuestions()
 				callback(data)
 			}
 		}
@@ -95,12 +96,21 @@
 	}
 	
 	  function getQuestions() {
-		questions = {}
-		questions["ques"] = quest
-		questions["rout"] = routs
-		questions["href"] = hrefs
-		return questions;
+		if(quest && routs && hrefs) {
+			questions = {}
+			questions["quest"] = quest
+			questions["routs"] = routs
+			questions["hrefs"] = hrefs
+			return questions;
+		}
+		return null
 	  }
+	
+	function setQuestions(questions) {
+		quest = questions["quest"]
+		hrefs = questions["hrefs"]
+		routs = questions["routs"]
+	}
 	
 	function getBookmarks() {
 		return getSelection("book")
