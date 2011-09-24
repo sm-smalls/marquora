@@ -85,7 +85,8 @@
 	}
 	
 	function reduceQuestion(question) {
-		if(question.length > 66) { question = question.substring(0,63) + "..." }
+		log(question)
+		if(question.length > 70) { question = question.substring(0,67) + "..."; log(question) }
 		return question
 	}
 	
@@ -251,16 +252,17 @@
    	  }
 	
 	
-	  //Makes questions into 66 or less chars by appending ... if necessary 
-	  function reduceChars(questionArray) {
-		reducedArray = [];
-		for(question in questionArray) {
-			q = questionArray[question];
-			if(q.length > 66) { reducedArray.push(q.substring(0,63) + "..."); }
-			else { reducedArray.push(q) }
-		}
-		return reducedArray;
-	  }
+		// 	  //Makes questions into 66 or less chars by appending ... if necessary 
+		// 	  function reduceChars(questionArray) {
+		// reducedArray = [];
+		// for(question in questionArray) {
+		// 	q = questionArray[question];
+		// 	log(q)
+		// 	if(q.length > 66) { reducedArray.push(q.substring(0,63) + "..."); log(q.substring(0,63)) }
+		// 	else { reducedArray.push(q) }
+		// }
+		// return reducedArray;
+		// 	  }
 	  
 	  //checks if the url is valid for quora
 	  function checkQuora(url) {
