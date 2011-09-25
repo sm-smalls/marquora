@@ -48,15 +48,6 @@
 		}
 	}
 	
-	  //checks if the url is valid for quora
-	  function checkQUORA(url) {
-	    var regex = /.*quora\.com.*/;
-		if(regex.test(url)) {
-		  return true;
-		}
-		return false;
-	  }
-	
 	  function findHides(routs) {
 		hides = []
 	    for(var i = 0; i < routs.length; i++) {
@@ -85,7 +76,7 @@
 	}
 	
 	function reduceQuestion(question) {
-		if(question.length > 70) { question = question.substring(0,67) + "..."}
+		if(question.length > 90) { question = question.substring(0,87) + "..."}
 		return question
 	}
 	

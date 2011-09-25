@@ -6,40 +6,99 @@
 <head>
 	<style>
 	body {
-/*	  width: 60px;*/
-/*	  height: 200px;*/
- 	  width: 630px;
+ 	  width: 360px;
+	  height: 370px;
+	  overflow-y:scroll;
 	  overflow-x:hidden;
-	  margin: auto;
 	}
 
 	#container {
 		margin-top: 40px;
+		display: block;
+		height: inherit;
+		overflow-x:inherit;
+	}
+	
+	#header {
+		width: 100%;
+		background-color: #505759;
+		color: #B9BBBC;
+		display: block;
+/*		rgba(84, 82, 112, .5);*/
 	}
 
-	a.question_text {
-		width: 450px;
-		margin-left: 10px;
+	a.nav {
+		float:left;
 		margin-right: 10px;
+		width: 75px;
+		color:inherit;
+	}
+	
+	a.nav:hover {
+		text-decoration: underline; 
+		color: red;
+	}
+
+	a.nav:active {
+		text-decoration: none;
+	}
+	
+	a.nav:visited {
+		text-decoration: none;
+	}
+	
+	a.nav:link {
+		text-decoration: none;
+	}
+	
+	a.answerText {
+		width: 278px;
+		margin-left: 5px;
+		float: left;
+		font-size: small;
+	}
+	
+	a.answerText:hover {
+		text-decoration: underline; 
+		color: red;
+	}
+
+	a.answerText:active {
+		text-decoration: none;
+	}
+	
+	a.answerText:visited {
+		text-decoration: none;
+	}
+	
+	a.answerText:link {
+		text-decoration: none;
+	}
+	
+	span.answerCount {
+		color: rgba(84, 82, 112, .5);
+		float: left;
+		margin-left: 5px;
+		width: 18px;
+		font-size: small;
+	}
+	
+	input.hideBox {
+		float: left;
+		margin-left: 5px;
+	}
+
+	input.bookBox {
 		float: left;
 	}
-
-	button.hideButton {
-		width: 45px;
-		float: left;
-		text-align: center;
+	
+	div.question_div {
+		width: inherit;
+		clear: both;
+/*		display: block;*/
+		margin-bottom: 5px;
 	}
-
-	button.bookButton {
-		float: left;
-		width: 99px;
-		text-align: center;
-	}
-
-	button.buttons {
-		display:block;
-	}
-
+	
 	img {
 	  margin:5px;
 	  border:2px solid black;
@@ -57,7 +116,7 @@
 	
 	chrome.tabs.getSelected(null, function(tab) {
 		buttonsMade = true;
-		makeCloseButton()
+		//makeCloseButton()
 		makeClearButton()
 		makeGetChoiceButton('getquestions')
 		makeGetChoiceButton('getbookmarks')
@@ -84,7 +143,7 @@
 		var button = document.getElementById(getChoice)
 		button.addEventListener("click", function() {
 			show(getChoice.substring(3))
-		});
+		}, false);
 	}
 	
 	function show(choice) {
@@ -93,17 +152,15 @@
 		turnElemNone('bookmarks')
 		var choiceElem = document.getElementById(choice)
 		choiceElem.style.display = "block"
-		if(choiceElem.childNodes.length == 0) {
-			paintNullChoice(choice)
-		}
-		else {
-			deleteNullChoice(choice)
-		}
+		var topElem = document.getElementById("get" + choice)
+		topElem.style.color = "#990000"
 	}
 	
 	function turnElemNone(choice) {
 		var elem = document.getElementById(choice)
 		elem.style.display = "none"
+		var topElem = document.getElementById("get" + choice)
+		topElem.style.color = "#B9BBBC"
 	}
 	
 	function paint(display, tab) {
@@ -135,18 +192,29 @@
 	
 	function paintSingleQuestion(question, choice, tabId) {
 		var container = document.getElementById(choice)		
-		if(question && question["rout"] && container) {
+		if(question && question["rout"] && container && !document.getElementById(choice + "_" + question["rout"])) {
 			var href = question["href"]
 			var text = question["text"]
 			var rout = question["rout"]
 			var div = document.createElement('div')
 			div.id = choice + "_" + rout;
-			var anchor = makeAnchor(href, text);
-			var hideButton = makeHideButton(href, rout, text, tabId);
-			var bookButton = makeBookButton(href, rout, text, tabId);				
+			div.className = "question_div"
+			
+			var regex = /\d/
+			var index = 0;
+			while(regex.test(text.substring(index, index+1)) == true) { index = index + 1 }
+			var count = text.substring(0, index)
+			var answer = text.substring(index)
+			if(answer.substring(0, 1) == " ") { answer = answer.substring(1) }
+			
+			var answerAnchor = makeAnchor(href, answer);
+			var countSpan = makeSpan(count)
+			var hideButton = makeHideBox(href, rout, text, tabId);
+			var bookButton = makeBookBox(href, rout, text, tabId);				
 			var storedValues = getValue(rout)
 			div.appendChild(bookButton);
-			div.appendChild(anchor);
+			div.appendChild(countSpan);
+			div.appendChild(answerAnchor);
 			div.appendChild(hideButton);
 			container.appendChild(div)
 		}
@@ -156,48 +224,48 @@
 	}
 	
 	function paintNullChoice(choice) {
-		var p = document.getElementById("title")
-		if(choice == "bookmarks") {
-			p.innerHTML = "No Bookmarks"
-		}
-		else if(choice == "hiddens") {
-			p.innerHTML = "Nothing Hidden"
-		}
-		else if(choice == "questions") {
-			p.innerHTML = "No Questions"
-		}
+		// var p = document.getElementById("title")
+		// if(choice == "bookmarks") {
+		// 	p.innerHTML = "No Bookmarks"
+		// }
+		// else if(choice == "hiddens") {
+		// 	p.innerHTML = "Nothing Hidden"
+		// }
+		// else if(choice == "questions") {
+		// 	p.innerHTML = "No Questions"
+		// }
 	}
 	
 	function deleteNullChoice(choice) {
-		var p = document.getElementById("title")
-		if(p) {
-			if(choice == "bookmarks") {
-				p.innerHTML = "Bookmarked Quoras"
-			}
-			else if(choice == "hiddens") {
-				p.innerHTML = "Hidden Quoras"
-			}
-			else if(choice == "questions") {
-				p.innerHTML = "Current Quoras"
-			}
-		}
+		// var p = document.getElementById("title")
+		// if(p) {
+		// 	if(choice == "bookmarks") {
+		// 		p.innerHTML = "Bookmarked Quoras"
+		// 	}
+		// 	else if(choice == "hiddens") {
+		// 		p.innerHTML = "Hidden Quoras"
+		// 	}
+		// 	else if(choice == "questions") {
+		// 		p.innerHTML = "Current Quoras"
+		// 	}
+		// }
 	}
 	
-	function tellAllDisplays(rout, hidebook, text) {
-		tellSingleDisplay(rout, text, hidebook, "hiddens")
-		tellSingleDisplay(rout, text, hidebook, "questions")
-		tellSingleDisplay(rout, text, hidebook, "bookmarks")
+	function tellAllDisplays(rout, hidebook, mark) {
+		tellSingleDisplay(rout, hidebook, mark, "hiddens")
+		tellSingleDisplay(rout, hidebook, mark, "questions")
+		tellSingleDisplay(rout, hidebook, mark, "bookmarks")
 	}
 	
-	function tellSingleDisplay(rout, text, hidebook, choice) {
+	function tellSingleDisplay(rout, hidebook, mark, choice) {
 		var buttonElem  = document.getElementById(choice + "_" + rout)
 		if(buttonElem) {
 			var childElems = buttonElem.childNodes;
 			if(hidebook == "hide") {
-				childElems[2].innerHTML = text
+				childElems[3].checked = mark
 			}
 			else if(hidebook == "book") {
-				childElems[0].innerHTML = text
+				childElems[0].checked = mark
 			}	
 		}
 	}
@@ -211,6 +279,14 @@
 	function peelStorage() {
 		resetDiv("bookmarks")
 		resetDiv("hiddens")
+		
+		var div = document.getElementById("questions");
+		var childNodes = div.childNodes;
+		for(var i = 0; i < childNodes.length; i++) {
+			child = childNodes[i]
+			child.childNodes[3].checked = false;
+			child.childNodes[0].checked = false;
+		}
 	}
 	
 	function resetDiv(choice) {
@@ -228,22 +304,26 @@
 		var divElem = document.getElementById(choice + '_' + rout)
 		var parent = divElem.parentNode
 		parent.removeChild(divElem)
-		if(parent.childNodes.length == 0) {
-			paintNullChoice(choice)
-		}
+	}
+	
+	function makeSpan(count) {
+		var answerCount = document.createElement('span')
+		answerCount.className = "answerCount"
+		answerCount.innerHTML = count
+		return answerCount
 	}
 	
 	function makeAnchor(href, text) {
-		var anchor = document.createElement('a')
-		anchor.href = href;
-		anchor.className = "question_text"
-		anchor.innerHTML = text
-		anchor.addEventListener("click", function() {
+		var answerAnchor = document.createElement('a')
+		answerAnchor.href = href;
+		answerAnchor.className = "answerText"
+		answerAnchor.innerHTML = text
+		answerAnchor.addEventListener("click", function() {
 			chrome.tabs.create({url: this.href});
-			self.close();
+			// self.close();
 			return(false);
 		});
-		return anchor;
+		return answerAnchor;
 	}
 	
 	function getChoiceFromValues(values, choice) {
@@ -257,56 +337,48 @@
 		return null;
 	}
 	
-	function makeHideButton(href, rout, text, tabId) {
-		var hideButton = document.createElement('button');
-		hideButton.className = 'hideButton';
+	function makeHideBox(href, rout, text, tabId) {
+		var hideBox = document.createElement('input');
+		hideBox.type = "checkbox";
+		hideBox.className = 'hideBox';
 		var value = getChoiceFromValues(getValue(rout), "hide");
 		if(value) {
-			hideButton.innerHTML = "Reveal"
+			hideBox.checked = true;
 		}
-		else {
-			hideButton.innerHTML = "Hide";
-		}
-		setAttributes(hideButton, href, rout, text)
-		hideButton.addEventListener("click", function() {
-			if(this.innerHTML == "Hide") {
-				this.innerHTML = "Reveal"
-				mark = true
+		setAttributes(hideBox, href, rout, text)
+		hideBox.addEventListener("click", function() {
+			if(this.checked == false) {
+				mark = false;
 			}
 			else {
-				this.innerHTML = "Hide"
-				mark = false
+				mark = true;
 			}
 			hide(tabId, this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
 			return(false);
 		});
-		return hideButton;
+		return hideBox;
 	}
 	
-	function makeBookButton(href, rout, text, tabId) {
-		var bookButton = document.createElement('button');
-		bookButton.className = 'bookButton';
+	function makeBookBox(href, rout, text, tabId) {
+		var bookBox = document.createElement('input');
+		bookBox.type = "checkbox";
+		bookBox.className = 'bookBox';
 		var value = getChoiceFromValues(getValue(rout), "book");
 		if(value) {
-			bookButton.innerHTML = "UnBookmark"
+			bookBox.checked = true;
 		}
-		else {
-			bookButton.innerHTML = "Bookmark";
-		}
-		setAttributes(bookButton, href, rout, text)
-		bookButton.addEventListener("click", function() {
-			if(this.innerHTML == "Bookmark") {
-				this.innerHTML = "UnBookmark"
-				mark = true;
-			}
-			else {
-				this.innerHTML = "Bookmark"
+		setAttributes(bookBox, href, rout, text)
+		bookBox.addEventListener("click", function() {
+			if(this.checked == false) {
 				mark = false;
 			}
+			else {
+				mark = true;
+			}
 			book(tabId, this.getAttribute('href'), this.getAttribute('rout'), this.getAttribute('text'), mark);
-			return(false)
+			return(false);
 		});
-		return bookButton;
+		return bookBox;
 	}
 	
 	function setAttributes(button, href, rout, text) {
@@ -324,12 +396,11 @@
 		chrome.extension.getBackgroundPage().hide(tabId, href, rout, text, mark, function() {
 			if(mark) {
 				paintSingleQuestion(makeQuestion(href, rout, text), 'hiddens', tabId)
-				tellAllDisplays(rout, "hide", "Reveal")
 			}
 			else {
 				peelSingleQuestion(rout, "hiddens")
-				tellAllDisplays(rout, "hide", "Hide")
 			}
+			tellAllDisplays(rout, "hide", mark)
 		});
 	}
 	
@@ -337,12 +408,11 @@
 		chrome.extension.getBackgroundPage().book(href, rout, text, mark, function() {
 			if(mark) {
 				paintSingleQuestion(makeQuestion(href, rout, text), 'bookmarks', tabId)
-				tellAllDisplays(rout, "book", "UnBookmark")
 			}
 			else {
 				peelSingleQuestion(rout, "bookmarks")
-				tellAllDisplays(rout, "book", "Bookmark")
 			}
+			tellAllDisplays(rout, "book", mark)
 		});
 	}
 	
@@ -377,16 +447,16 @@
 
 </head>
 <body>
-	<div id="buttons" style="display:block">
-	  <button id="getquestions" class="buttons" style="float:left">Current Quoras</button>
-	  <span id="title" style="float:left; margin-top:2px; padding-left:5px; padding-right: 5px;">Message Here</div>
-	  <button id="getbookmarks" class="buttons" style="float:left">BookMarked Quoras</button>
-	  <button id="gethiddens" class="buttons" style="float:left;">Hidden Quoras</button>
-	  <button id="closeButton" class="buttons" style="float:right; margin-right: 16px">Close</button> 
-	  <button id="clearButton" class="buttons" style="float:right">Clear Storage</button>
+	<div id="header">
+	  <a id="clearButton" href="#" class="nav">Clear All</a>
+	  <a id="getquestions" href="#" class="nav">Current</a>
+	  <a id="getbookmarks" href="#" class="nav">Bookmarks</a>
+	  <a id="gethiddens" href="#" class="nav">Hidden</a>
+	  <!-- <button id="closeButton" class="buttons" style="float:right; margin-right: 16px">Close</button>  -->
 	</div>
 	<br />
-	<div id="container" style="display:block">
+	
+	<div id="container">
 	    <div id="bookmarks"></div>
 		<div id="hiddens"></div>
 	    <div id="questions"></div>

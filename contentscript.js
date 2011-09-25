@@ -47,7 +47,7 @@ function findQuestions(url) {
 						href.push(question_link.href);
 						routing.push(rout);
 						if(!(number_answers == null)) {
-							questions.push("(" + number_answers + ")  " + question_link.text)
+							questions.push(number_answers + " " + question_link.text)
 						}
 						else {
 							questions.push(question_link.text)
