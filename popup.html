@@ -5,33 +5,39 @@
 
 <head>
 	<style>
+	.round {
+	  -moz-border-radius:    10px;
+	  -webkit-border-radius: 10px;
+	  border-radius:         10px;
+	}
+	
 	body {
- 	  width: 360px;
-	  height: 370px;
+ 	  width: 367px;
+	  height: 360px;
 	  overflow-y:scroll;
 	  overflow-x:hidden;
 	}
 
 	#container {
-		margin-top: 40px;
+		width: inherit;
 		display: block;
 		height: inherit;
-		overflow-x:inherit;
+		overflow-x: inherit;
 	}
 	
 	#header {
-		width: 100%;
+		width: 360px;
 		background-color: #505759;
 		color: #B9BBBC;
-		display: block;
 /*		rgba(84, 82, 112, .5);*/
 	}
 
 	a.nav {
 		float:left;
-		margin-right: 10px;
-		width: 75px;
+		width: 90px;
 		color:inherit;
+		background-color: inherit;
+		font-size: 1.1em;
 	}
 	
 	a.nav:hover {
@@ -52,19 +58,23 @@
 	}
 	
 	a.answerText {
-		width: 278px;
+		width: 297px;
 		margin-left: 5px;
 		float: left;
-		font-size: small;
+		font-size: .85em;
+		margin-top: inherit;
+		margin-bottom: inherit;
+/*		border-top: 1px solid;*/
 	}
 	
 	a.answerText:hover {
 		text-decoration: underline; 
-		color: red;
+		color: blue;
 	}
 
 	a.answerText:active {
 		text-decoration: none;
+		color: black;
 	}
 	
 	a.answerText:visited {
@@ -80,23 +90,37 @@
 		float: left;
 		margin-left: 5px;
 		width: 18px;
-		font-size: small;
+		font-size: .8em;
+		margin-top: 6px;
 	}
 	
 	input.hideBox {
 		float: left;
+		margin-top: 8px;
 		margin-left: 5px;
 	}
 
 	input.bookBox {
 		float: left;
+		margin-top: 8px;
 	}
 	
 	div.question_div {
-		width: inherit;
+		width: 360;
 		clear: both;
-/*		display: block;*/
+		display: block;
+		margin-top: 5px;
 		margin-bottom: 5px;
+	}
+	
+	#boxTitles {
+		width: 360px;
+		margin-top: 30px;
+	}
+	
+	span.boxNav {
+		float: left;
+		color: rgba(84, 82, 112, .5)
 	}
 	
 	img {
@@ -160,7 +184,7 @@
 		var elem = document.getElementById(choice)
 		elem.style.display = "none"
 		var topElem = document.getElementById("get" + choice)
-		topElem.style.color = "#B9BBBC"
+		topElem.style.color = "inherit"
 	}
 	
 	function paint(display, tab) {
@@ -186,7 +210,7 @@
 			} 
 		}
 		else {
-			paintNullChoice(choice) 
+			log("cant paint question")
 		}
 	}
 	
@@ -209,7 +233,7 @@
 			
 			var answerAnchor = makeAnchor(href, answer);
 			var countSpan = makeSpan(count)
-			var hideButton = makeHideBox(href, rout, text, tabId);
+			var hideButton = makeHideBox(href, rout, text, tabId, choice);
 			var bookButton = makeBookBox(href, rout, text, tabId);				
 			var storedValues = getValue(rout)
 			div.appendChild(bookButton);
@@ -221,34 +245,6 @@
 		else {
 			// log("question: " + question + "\tcontainer: " + container + "\tbad in paintSingleQuestion")
 		}
-	}
-	
-	function paintNullChoice(choice) {
-		// var p = document.getElementById("title")
-		// if(choice == "bookmarks") {
-		// 	p.innerHTML = "No Bookmarks"
-		// }
-		// else if(choice == "hiddens") {
-		// 	p.innerHTML = "Nothing Hidden"
-		// }
-		// else if(choice == "questions") {
-		// 	p.innerHTML = "No Questions"
-		// }
-	}
-	
-	function deleteNullChoice(choice) {
-		// var p = document.getElementById("title")
-		// if(p) {
-		// 	if(choice == "bookmarks") {
-		// 		p.innerHTML = "Bookmarked Quoras"
-		// 	}
-		// 	else if(choice == "hiddens") {
-		// 		p.innerHTML = "Hidden Quoras"
-		// 	}
-		// 	else if(choice == "questions") {
-		// 		p.innerHTML = "Current Quoras"
-		// 	}
-		// }
 	}
 	
 	function tellAllDisplays(rout, hidebook, mark) {
@@ -337,7 +333,7 @@
 		return null;
 	}
 	
-	function makeHideBox(href, rout, text, tabId) {
+	function makeHideBox(href, rout, text, tabId, choice) {
 		var hideBox = document.createElement('input');
 		hideBox.type = "checkbox";
 		hideBox.className = 'hideBox';
@@ -447,15 +443,18 @@
 
 </head>
 <body>
-	<div id="header">
-	  <a id="clearButton" href="#" class="nav">Clear All</a>
-	  <a id="getquestions" href="#" class="nav">Current</a>
+	<div id="header round">
+	  <a id="getquestions" href="#" class="nav" style="margin-left: 2px; width: 88px;">Current</a>
 	  <a id="getbookmarks" href="#" class="nav">Bookmarks</a>
-	  <a id="gethiddens" href="#" class="nav">Hidden</a>
-	  <!-- <button id="closeButton" class="buttons" style="float:right; margin-right: 16px">Close</button>  -->
+	  <a id="gethiddens" href="#" class="nav" style="margin-left: 22px; width: 68px">Hidden</a>
+	  <a id="clearButton" href="#" class="nav" style="margin-left: 20px; width: 70px">Clear All</a>
 	</div>
 	<br />
-	
+	<div id="boxTitles">
+		<span class="boxNav" style="margin-left: 2px">Book</span>
+		<span class="boxNav" style="margin-left: 289px">Hide</span>
+	</div>
+	<br />
 	<div id="container">
 	    <div id="bookmarks"></div>
 		<div id="hiddens"></div>
