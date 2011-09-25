@@ -23,12 +23,14 @@
 		display: block;
 		height: inherit;
 		overflow-x: inherit;
+		border-top: 1px solid;
 	}
 	
 	#header {
 		width: 360px;
 		background-color: #505759;
 		color: #B9BBBC;
+		font-family: sans-serif;
 /*		rgba(84, 82, 112, .5);*/
 	}
 
@@ -42,6 +44,7 @@
 	
 	a.nav:hover {
 		text-decoration: underline; 
+		cursor: pointer;
 		color: red;
 	}
 
@@ -115,12 +118,37 @@
 	
 	#boxTitles {
 		width: 360px;
-		margin-top: 30px;
+		margin-top: 15px;
 	}
 	
 	span.boxNav {
 		float: left;
 		color: rgba(84, 82, 112, .5)
+	}
+	
+	#getquestions {
+		margin-left: 2px; 
+		margin-right: 42px;
+		width: 56px;
+		font-family: inherit;
+	}
+	
+	#getbookmarks {
+		width: 44px;
+		margin-right: 46px; 
+		font-family: inherit;
+	}
+	
+	#gethiddens {
+		width: 54px;
+		margin-right: 36px;
+		font-family: inherit;
+	}
+	
+	#clearButton {
+		margin-left: 12px;
+		width: 68px; 
+		font-family: inherit;
 	}
 	
 	img {
@@ -178,6 +206,7 @@
 		choiceElem.style.display = "block"
 		var topElem = document.getElementById("get" + choice)
 		topElem.style.color = "#990000"
+		topElem.style.borderBottom = "1px solid"
 	}
 	
 	function turnElemNone(choice) {
@@ -185,6 +214,7 @@
 		elem.style.display = "none"
 		var topElem = document.getElementById("get" + choice)
 		topElem.style.color = "inherit"
+		topElem.style.borderBottom = "none"
 	}
 	
 	function paint(display, tab) {
@@ -444,17 +474,16 @@
 </head>
 <body>
 	<div id="header round">
-	  <a id="getquestions" href="#" class="nav" style="margin-left: 2px; width: 88px;">Current</a>
-	  <a id="getbookmarks" href="#" class="nav">Bookmarks</a>
-	  <a id="gethiddens" href="#" class="nav" style="margin-left: 22px; width: 68px">Hidden</a>
-	  <a id="clearButton" href="#" class="nav" style="margin-left: 20px; width: 70px">Clear All</a>
+	  <a id="getquestions" href="#" class="nav">Current</a>
+	  <a id="getbookmarks" href="#" class="nav">Saved</a>
+	  <a id="gethiddens" href="#" class="nav">Hidden</a>
+	  <a id="clearButton" href="#" class="nav">Clear All</a>
 	</div>
 	<br />
 	<div id="boxTitles">
-		<span class="boxNav" style="margin-left: 2px">Book</span>
-		<span class="boxNav" style="margin-left: 289px">Hide</span>
+		<span class="boxNav" style="margin-left: 2px">Save</span>
+		<span class="boxNav" style="margin-left: 294px">Hide</span>
 	</div>
-	<br />
 	<div id="container">
 	    <div id="bookmarks"></div>
 		<div id="hiddens"></div>
