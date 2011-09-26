@@ -1,6 +1,6 @@
 {
   "name": "Marquora",
-  "version": "2.5",
+  "version": "2.6",
   "description": "Quickly see, save, and hide questions on Quora",
   "background_page": "background.html",
   "browser_action": {
